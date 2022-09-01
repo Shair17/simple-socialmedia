@@ -1,0 +1,101 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table users {
+  id String [pk]
+  username String [unique, not null]
+  password String [not null]
+  email String [unique, not null]
+  name String [not null]
+  description String
+  birthDate DateTime [not null]
+  address String [not null]
+  favoritesPrivate Boolean [not null, default: false]
+  refreshToken String
+  resetPasswordToken String
+  favorites favorite_photos [not null]
+  gallery photos_gallery [not null]
+  photos photos [not null]
+  photoRankings photos_rankings [not null]
+  comments comments [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table photos_gallery {
+  id String [pk]
+  photos photos [not null]
+  user users
+  userId String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table favorite_photos {
+  id String [pk]
+  photo photos [not null]
+  photoId String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user users
+  userId String
+}
+
+Table photos {
+  id String [pk]
+  filename String [not null]
+  title String [not null]
+  description String [not null]
+  url String [not null]
+  cloudinaryPublicId String [not null]
+  rankings photos_rankings [not null]
+  comments comments [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user users
+  userId String
+  favoritePhotos favorite_photos [not null]
+  photoGallery photos_gallery
+  photoGalleryId String
+}
+
+Table comments {
+  id String [pk]
+  comment String [not null]
+  user users [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  photo photos
+  photoId String
+  userId String [not null]
+}
+
+Table photos_rankings {
+  id String [pk]
+  value Float [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  photo photos
+  photoId String
+  user users
+  userId String
+}
+
+Ref: photos_gallery.userId > users.id
+
+Ref: favorite_photos.photoId > photos.id
+
+Ref: favorite_photos.userId > users.id
+
+Ref: photos.userId > users.id
+
+Ref: photos.photoGalleryId > photos_gallery.id
+
+Ref: comments.userId > users.id
+
+Ref: comments.photoId > photos.id
+
+Ref: photos_rankings.photoId > photos.id
+
+Ref: photos_rankings.userId > users.id
