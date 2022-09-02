@@ -4,12 +4,17 @@ import { UploadIcon } from '../components/atoms/UploadIcon';
 import { RequireAuth } from '../components/hoc/RequireAuth';
 import { Layout } from '../components/templates/Layout';
 import { useForm } from 'react-hook-form';
-import { UploadImageType } from '../interfaces/app';
+import { UploadImageType, Photo } from '../interfaces/app';
 import useAxios from 'axios-hooks';
 import clsx from 'clsx';
+import { toast } from 'react-hot-toast';
+import { getErrorMessage } from '../utils/getErrorMessage';
 
 export const UploadPage: FC = () => {
-	const [{ error, loading, data }, executeUploadImage] = useAxios(
+	const [{ loading }, executeUploadImage] = useAxios<
+		{ status: boolean; photo: Photo },
+		{ title: string; description: string; image: string; filename: string }
+	>(
 		{
 			url: '/photos/upload',
 			method: 'POST',
@@ -26,21 +31,38 @@ export const UploadPage: FC = () => {
 	const fileList = watch('image');
 
 	const onSubmit = handleSubmit(({ title, description, image }) => {
-		const data = new FormData();
+		const reader = new FileReader();
+		reader.readAsDataURL(image[0]);
+		reader.onloadend = (result) => {
+			const base64 = reader.result as string;
 
-		data.append('title', title);
-		data.append('description', description);
-		data.append('image', image[0]);
-
-		executeUploadImage({
-			data,
-		})
-			.then((response) => {
-				console.log(response.data);
+			executeUploadImage({
+				data: {
+					title,
+					description,
+					image: base64,
+					filename: image[0].name,
+				},
 			})
-			.catch((error) => {
-				console.log(error);
-			});
+				.then((response) => {
+					const { status, photo } = response.data;
+
+					if (!status || !photo) {
+						toast.error('Ha ocurrido un error al subir la foto');
+						return;
+					}
+
+					navigation(`/photos/${photo.id}`);
+				})
+				.catch((error) => {
+					console.log(error);
+					toast.error(getErrorMessage(error?.response?.data?.message));
+				});
+		};
+
+		reader.onerror = (error) => {
+			console.log(error);
+		};
 	});
 
 	return (

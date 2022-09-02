@@ -100,3 +100,31 @@ export interface Photo {
 	userId: string;
 	photoGalleryId?: string;
 }
+
+export interface GetPhotosFeed {
+	ranking: number;
+	createdAt: string;
+	id: string;
+	filename: string;
+	title: string;
+	url: string;
+	description: string;
+	user?: {
+		id: string;
+		username: string;
+		name: string;
+	};
+}
+
+export interface Comment {
+	id: string;
+	comment: string;
+	createdAt: string;
+	updatedAt: string;
+	photoId: string;
+	userId: string;
+	user: {
+		name: string;
+		username: string;
+	};
+}

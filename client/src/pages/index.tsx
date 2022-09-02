@@ -6,13 +6,62 @@ import { useUserStore } from '../stores/useUserStore';
 import { Loader } from '../components/atoms/Loader';
 import { TabIsLoading } from '../components/atoms/TabIsLoading';
 import { UsersTop } from '../components/organisms/UsersTop';
+import useAxios from 'axios-hooks';
+import { GetPhotosFeed } from '../interfaces/app';
+
+const FeedPhotosPosts = () => {
+	const [{ data, loading, error }] = useAxios<GetPhotosFeed[]>(
+		`/feed/photos?take=100&skip=0&orderBy=desc`
+	);
+
+	if (loading) return <TabIsLoading />;
+
+	if (error || !data) {
+		return <p>Error al cargar el feed.</p>;
+	}
+
+	if (data.length === 0) {
+		return <p>No hay datos.</p>;
+	}
+
+	/* <Loader /> */
+
+	return (
+		<>
+			{data.map(
+				({
+					id,
+					url,
+					createdAt,
+					title,
+					description,
+					filename,
+					user,
+					ranking,
+				}) => (
+					<div className="mb-6" key={id}>
+						<FeedPhoto
+							id={id}
+							imageUrl={url}
+							createdAt={createdAt}
+							description={description}
+							filename={filename}
+							name={user!.name}
+							score={ranking}
+							title={title}
+							username={user!.username}
+						/>
+					</div>
+				)
+			)}
+		</>
+	);
+};
 
 export const IndexPage: FC = () => {
 	const name = useUserStore((s) => s.name);
 	const { greeting } = useDate();
 	const greetingMessage = name ? `${greeting}, ${name}` : greeting;
-
-	// aquí poner fotos de todos y cosas así...
 
 	return (
 		<Layout>
@@ -22,26 +71,8 @@ export const IndexPage: FC = () => {
 						<h1 className="title is-4">{greetingMessage}</h1>
 						<br />
 
-						<TabIsLoading />
+						<FeedPhotosPosts />
 
-						{/** iterar */}
-						{[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item, key) => (
-							<div className="mb-6" key={key}>
-								<FeedPhoto
-									id="123"
-									imageUrl="https://i.imgur.com/91DjRrU.png"
-									createdAt={new Date().toISOString()}
-									description="Hola, esta es mi primera foto en el sitio web"
-									filename="Nombre de archivo"
-									name="Jimmy Morales"
-									score={5}
-									title="Nombre de mi foto"
-									username="shair.dev"
-								/>
-							</div>
-						))}
-						<Loader />
-						{/** */}
 						<br />
 						<br />
 						<br />

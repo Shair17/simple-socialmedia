@@ -5,8 +5,12 @@ import {PhotoService} from './photo.service';
 import {
   GetPhotoParams,
   GetPhotoParamsType,
+  CreateCommentBody,
+  CreateCommentBodyType,
   DeletePhotoParams,
   DeletePhotoParamsType,
+  UploadImageBody,
+  UploadImageBodyType,
 } from './photo.schema';
 
 @Controller('/photos')
@@ -24,12 +28,30 @@ export class PhotoController {
     return this.photoService.getPhoto(request.params);
   }
 
+  @POST('/:id/comment', {
+    onRequest: [hasBearerToken, IsAuthenticated],
+    schema: {
+      body: CreateCommentBody,
+    },
+  })
+  async createComment(
+    request: Request<{Body: CreateCommentBodyType}>,
+    reply: Reply,
+  ) {
+    return this.photoService.createComment(request.userId, request.body);
+  }
+
   @POST('/upload', {
     onRequest: [hasBearerToken, IsAuthenticated],
+    schema: {
+      body: UploadImageBody,
+    },
   })
-  async uploadPhoto(request: Request, reply: Reply) {
-    // @ts-ignore
-    return this.photoService.uploadPhoto(request.raw.files.image);
+  async uploadPhoto(
+    request: Request<{Body: UploadImageBodyType}>,
+    reply: Reply,
+  ) {
+    return this.photoService.uploadPhoto(request.userId, request.body);
   }
 
   @DELETE('/:id', {

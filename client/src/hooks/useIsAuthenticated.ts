@@ -18,6 +18,7 @@ export const useIsAuthenticated = (): boolean => {
 		}
 
 		if (!isValidToken(accessToken) && !isValidToken(refreshToken)) {
+			removeTokens();
 			setIsAuthenticated(false);
 			return;
 		}

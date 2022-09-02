@@ -15,6 +15,10 @@ export const UsersTop: FC = () => {
 		return <p>Ha ocurrido un error.</p>;
 	}
 
+	if (data.length === 0) {
+		return <p>No hay datos.</p>;
+	}
+
 	return (
 		<>
 			{data.map(({ id, description, name, photosCount, username }) => (

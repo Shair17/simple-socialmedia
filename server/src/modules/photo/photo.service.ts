@@ -1,10 +1,15 @@
 import {Service} from 'fastify-decorators';
 import {DatabaseService} from '../../database/DatabaseService';
 import {UserService} from '../user/user.service';
-import {DeletePhotoParamsType, GetPhotoParamsType} from './photo.schema';
+import {
+  DeletePhotoParamsType,
+  GetPhotoParamsType,
+  UploadImageBodyType,
+} from './photo.schema';
 import {NotFound, Unauthorized, InternalServerError} from 'http-errors';
 import {PhotoRanking} from '@prisma/client';
 import {CloudinaryService} from '../../shared/services/cloudinary.service';
+import {CreateCommentBodyType} from './photo.schema';
 
 @Service('PhotoServiceToken')
 export class PhotoService {
@@ -14,14 +19,36 @@ export class PhotoService {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  async uploadPhoto(image: any) {
-    const buffer = Buffer.from(image.data);
-    const base64 = buffer.toString();
+  async uploadPhoto(
+    userId: string,
+    {title, description, filename, image}: UploadImageBodyType,
+  ) {
+    try {
+      const user = await this.userService.getByIdOrThrow(userId);
+      const uploadedImage = await this.cloudinaryService.upload(image);
+      const photo = await this.databaseService.photo.create({
+        data: {
+          title,
+          description,
+          filename,
+          url: uploadedImage.secure_url,
+          cloudinaryPublicId: uploadedImage.public_id,
+          user: {
+            connect: {
+              id: user.id,
+            },
+          },
+        },
+      });
 
-    const cloudinary_image = await this.cloudinaryService.upload(base64);
-    console.log(cloudinary_image);
-
-    return 'ok';
+      return {
+        status: true,
+        photo,
+      };
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerError();
+    }
   }
 
   async getPhotoCountByUserId(userId: string): Promise<number> {
@@ -41,13 +68,39 @@ export class PhotoService {
   async getPhotoByIdOrThrow(id: string) {
     const photo = await this.databaseService.photo.findUnique({
       where: {id},
+      include: {
+        user: true,
+        comments: {
+          include: {
+            user: true,
+          },
+        },
+      },
     });
 
     if (!photo) {
       throw new NotFound();
     }
 
-    return photo;
+    const {comments: _comments, user, ...restOfPhoto} = photo;
+
+    const comments = _comments.map(
+      ({user: {name, username}, ...restOfComment}) => ({
+        ...restOfComment,
+        user: {
+          name,
+          username,
+        },
+      }),
+    );
+
+    const response = {
+      ...restOfPhoto,
+      comments,
+      user: {name: user?.name, username: user?.username},
+    };
+
+    return response;
   }
 
   async getPhoto({id}: GetPhotoParamsType) {
@@ -68,6 +121,49 @@ export class PhotoService {
         username: user?.username,
       },
     }));
+  }
+
+  async createComment(
+    userId: string,
+    {photoId, comment}: CreateCommentBodyType,
+  ) {
+    const [user, photo] = await Promise.all([
+      this.userService.getByIdOrThrow(userId),
+      this.getPhotoByIdOrThrow(photoId),
+    ]);
+
+    const _createdComment = await this.databaseService.comment.create({
+      data: {
+        comment,
+        photo: {
+          connect: {
+            id: photo.id,
+          },
+        },
+        user: {
+          connect: {
+            id: user.id,
+          },
+        },
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    const {user: userComment, ...restOfComment} = _createdComment;
+
+    return {
+      status: true,
+      success: true,
+      comment: {
+        ...restOfComment,
+        user: {
+          name: userComment.name,
+          username: userComment.username,
+        },
+      },
+    };
   }
 
   async deletePhoto(userId: string, {id: photoId}: DeletePhotoParamsType) {

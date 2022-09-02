@@ -2,10 +2,14 @@ import {Initializer, Service} from 'fastify-decorators';
 import cloudinary from 'cloudinary';
 import {ConfigService} from '../../config/config.service';
 import type {OnModuleInit} from '../../interfaces/module';
+import {LoggerService} from './logger.service';
 
 @Service('CloudinaryServiceToken')
 export class CloudinaryService implements OnModuleInit {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly loggerService: LoggerService,
+  ) {}
 
   @Initializer()
   onModuleInit(): void {
@@ -19,6 +23,14 @@ export class CloudinaryService implements OnModuleInit {
       ),
       secure: true,
     });
+
+    if (Object.keys(cloudinary.v2.config()).length === 0) {
+      this.loggerService.error(`Cloudinary connection cannot be stablished.`);
+    } else {
+      this.loggerService.info(
+        `Cloudinary Service is ready to save images and videos.`,
+      );
+    }
   }
 
   async upload(
