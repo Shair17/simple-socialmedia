@@ -5,8 +5,8 @@ export const Footer: FC = () => {
 		<footer className="footer">
 			<div className="content has-text-centered">
 				<p>
-					<strong>Red Social</strong> por Jeanpier, José, Jordy y Jimmy. ©{' '}
-					{new Date().getFullYear().toString()}.
+					<strong>Red Social</strong> por Jeanpier, Jennifer, Jimmy, Jordy y
+					José. © {new Date().getFullYear().toString()}.
 				</p>
 			</div>
 		</footer>

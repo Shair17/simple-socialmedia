@@ -45,7 +45,7 @@ export const PhotosPage: FC<PropsWithChildren<{}>> = () => {
 		<Layout>
 			<div className="container is-max-widescreen p-5">
 				<h1 className="title is-1">Fotos en Red Social</h1>
-				<div className="columns is-multiline is-mobile">
+				<div className="columns is-multiline is-desktop">
 					{data.length === 0 && (
 						<p className="subtitle ml-4">No hay fotos aún.</p>
 					)}

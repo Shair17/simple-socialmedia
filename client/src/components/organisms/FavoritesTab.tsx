@@ -28,12 +28,12 @@ export const FavoritesTab: FC<Props> = ({ username }) => {
 	}
 
 	return (
-		<div className="columns is-multiline is-mobile">
+		<div className="columns is-multiline is-desktop">
 			{data.map(({ photo }) => (
 				<div className="column is-one-third" key={photo.id}>
 					<Link to={`/photos/${photo.id}`} style={{ color: 'inherit' }}>
 						<figure className="image is-square">
-							<img src={photo.url} />
+							<img src={photo.url} className="img-fluid" />
 						</figure>
 					</Link>
 				</div>

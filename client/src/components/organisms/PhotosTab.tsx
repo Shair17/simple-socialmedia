@@ -24,7 +24,7 @@ export const PhotosTab: FC<Props> = ({ ItsMe, username }) => {
 	return (
 		<>
 			{data.length === 0 && <p className="mb-5">@{username} no tiene fotos.</p>}
-			<div className="columns is-multiline is-mobile">
+			<div className="columns is-multiline is-desktop">
 				{ItsMe && (
 					<div className="column is-one-third">
 						<Link to="/upload" style={{ color: 'inherit' }}>
@@ -47,7 +47,7 @@ export const PhotosTab: FC<Props> = ({ ItsMe, username }) => {
 					<div className="column is-one-third" key={id}>
 						<Link to={`/photos/${id}`} style={{ color: 'inherit' }}>
 							<figure className="image is-square">
-								<img src={url} />
+								<img src={url} className="img-fluid" />
 							</figure>
 						</Link>
 					</div>

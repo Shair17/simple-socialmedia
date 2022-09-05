@@ -32,7 +32,7 @@ export const UsersPage: FC<PropsWithChildren<{}>> = () => {
 		<Layout>
 			<div className="container is-max-widescreen p-5">
 				<h1 className="title is-1">Usuarios en Red Social</h1>
-				<div className="columns is-multiline is-mobile">
+				<div className="columns is-multiline is-desktop">
 					{data.map(
 						({
 							id,

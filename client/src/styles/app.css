@@ -11,3 +11,8 @@
 .h-6 {
 	height: 1.5rem;
 }
+
+.img-fluid {
+	object-fit: cover;
+	object-position: center;
+}

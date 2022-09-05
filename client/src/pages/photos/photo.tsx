@@ -156,10 +156,14 @@ export const Photo: FC = () => {
 		},
 		any
 	>(`/photos/${photoId}`);
-	const [_, executeAddPhotoToFavorites] = useAxios<
+	const [{}, executeAddPhotoToFavorites] = useAxios<
 		{ success: boolean; heartIsOn: boolean },
 		{ photoId: string }
 	>({ method: 'POST', url: `/photos/${photoId}/favorite` }, { manual: true });
+	const [{}, executeGetPhotoIsInFavorites] = useAxios<
+		boolean,
+		{ photoId: string }
+	>(`/photos/${photoId}/is-in-favorites`, { manual: true });
 	const [photoRanking, setPhotoRanking] = useState<number>(
 		data?.ranking || createdRankingData?.newRanking || 0
 	);
@@ -200,6 +204,22 @@ export const Photo: FC = () => {
 	};
 
 	useEffect(() => {
+		if (!data) return;
+
+		if (data.isInFavorites) setHeartIsOn(data.isInFavorites);
+
+		executeGetPhotoIsInFavorites({
+			data: {
+				photoId: data.id,
+			},
+		})
+			.then((response) => {
+				setHeartIsOn(response.data);
+			})
+			.catch((err) => console.log(err));
+	}, [data]);
+
+	useEffect(() => {
 		if (!createdRankingData) return;
 
 		setPhotoRanking(createdRankingData.newRanking);
@@ -233,25 +253,37 @@ export const Photo: FC = () => {
 						<div className="card">
 							<div className="card-image">
 								<figure className="image is-16by9">
-									<img src={data.url} alt={data.title} />
+									<img src={data.url} alt={data.title} className="img-fluid" />
 								</figure>
 							</div>
 							<div className="card-content">
 								<div className="media">
 									<div className="media-left">
-										<figure className="image is-48x48">
-											<img
-												className="is-rounded"
-												src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
-													data.user.name
-												)}`}
-												alt="Placeholder image"
-											/>
-										</figure>
+										<Link to={`/users/${data.user.username}`}>
+											<figure className="image is-48x48">
+												<img
+													className="is-rounded"
+													src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+														data.user.name
+													)}`}
+													alt={data.user.name}
+												/>
+											</figure>
+										</Link>
 									</div>
 									<div className="media-content">
-										<p className="title is-4">{data.user.name}</p>
-										<p className="subtitle is-6">@{data.user.username}</p>
+										<Link
+											to={`/users/${data.user.username}`}
+											style={{ color: 'inherit' }}
+										>
+											<p className="title is-4">{data.user.name}</p>
+										</Link>
+										<Link
+											to={`/users/${data.user.username}`}
+											style={{ color: 'inherit' }}
+										>
+											<p className="subtitle is-6">@{data.user.username}</p>
+										</Link>
 									</div>
 									<div className="media-right">
 										{isAuthenticated && (
@@ -261,11 +293,7 @@ export const Photo: FC = () => {
 														onClick={handleAddToFavorites}
 														style={{ color: 'inherit' }}
 													>
-														{data.isInFavorites || heartIsOn ? (
-															<HeartFull />
-														) : (
-															<HeartEmpty />
-														)}
+														{heartIsOn ? <HeartFull /> : <HeartEmpty />}
 													</a>
 												</div>
 												<br />

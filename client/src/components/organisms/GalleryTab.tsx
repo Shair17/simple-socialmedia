@@ -26,7 +26,7 @@ export const GalleryTab: FC<Props> = ({ ItsMe, username }) => {
 			{data.length === 0 && (
 				<p className="mb-5">@{username} no tiene galerías.</p>
 			)}
-			<div className="columns is-multiline is-mobile">
+			<div className="columns is-multiline is-desktop">
 				{ItsMe && (
 					<div className="column is-one-third">
 						<Link to="/upload" style={{ color: 'inherit' }}>
@@ -49,7 +49,10 @@ export const GalleryTab: FC<Props> = ({ ItsMe, username }) => {
 					<div className="column is-one-third" key={key}>
 						<Link key={key} to={`/photos/${key}`} style={{ color: 'inherit' }}>
 							<figure className="image is-square">
-								<img src="https://bulma.io/images/placeholders/256x256.png" />
+								<img
+									src="https://bulma.io/images/placeholders/256x256.png"
+									className="img-fluid"
+								/>
 							</figure>
 						</Link>
 					</div>

@@ -87,7 +87,7 @@ export const Navbar: FC = () => {
 					{isAuthenticated ? (
 						<div className="navbar-item has-dropdown is-hoverable">
 							<Link to={`/users/${username}`} className="navbar-link">
-								<p className="image">
+								<p className="image is-32x32">
 									<img
 										className="is-rounded"
 										src={`https://ui-avatars.com/api/?name=${encodeURIComponent(

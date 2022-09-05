@@ -5,6 +5,8 @@ import {PhotoService} from './photo.service';
 import {
   AddPhotoToFavoritesBody,
   AddPhotoToFavoritesBodyType,
+  GetIsPhotoInFavoritesBody,
+  GetIsPhotoInFavoritesBodyType,
   GetRankingBody,
   GetRankingBodyType,
 } from './photo.schema';
@@ -33,6 +35,22 @@ export class PhotoController {
   @GET('/:id', {schema: {params: GetPhotoParams}})
   async getPhoto(request: Request<{Params: GetPhotoParamsType}>, reply: Reply) {
     return this.photoService.getPhoto(request.userId, request.params);
+  }
+
+  @GET('/:id/is-in-favorites', {
+    onRequest: [hasBearerToken, IsAuthenticated],
+    schema: {
+      body: GetIsPhotoInFavoritesBody,
+    },
+  })
+  async getIsPhotoInFavorites(
+    request: Request<{Body: GetIsPhotoInFavoritesBodyType}>,
+    reply: Reply,
+  ) {
+    return this.photoService.getIsPhotoInFavorites(
+      request.userId,
+      request.body,
+    );
   }
 
   @POST('/:id/favorite', {

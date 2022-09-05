@@ -7,6 +7,13 @@ export type AddPhotoToFavoritesBodyType = Static<
   typeof AddPhotoToFavoritesBody
 >;
 
+export const GetIsPhotoInFavoritesBody = Type.Object({
+  photoId: Type.String({format: 'uuid'}),
+});
+export type GetIsPhotoInFavoritesBodyType = Static<
+  typeof GetIsPhotoInFavoritesBody
+>;
+
 export const GetRankingBody = Type.Object({
   photoId: Type.String({format: 'uuid'}),
 });

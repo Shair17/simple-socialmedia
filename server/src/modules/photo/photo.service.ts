@@ -5,6 +5,7 @@ import {
   AddPhotoToFavoritesBodyType,
   CreateRatingBodyType,
   DeletePhotoParamsType,
+  GetIsPhotoInFavoritesBodyType,
   GetPhotoParamsType,
   GetRankingBodyType,
   UploadImageBodyType,
@@ -288,6 +289,26 @@ export class PhotoService {
       success: true,
       newRanking: updatedRanking,
     };
+  }
+
+  async getIsPhotoInFavorites(
+    userId: string,
+    {photoId}: GetIsPhotoInFavoritesBodyType,
+  ) {
+    const [user, photo] = await Promise.all([
+      this.userService.getByIdOrThrow(userId),
+      this.getPhotoByIdOrThrow(photoId),
+    ]);
+
+    const isInFavorites = await this.databaseService.favoritePhotos.findFirst({
+      where: {user: {id: user.id}, photo: {id: photo.id}},
+    });
+
+    if (!isInFavorites) {
+      return false;
+    }
+
+    return true;
   }
 
   async getRanking(userId: string, {photoId}: GetRankingBodyType) {
