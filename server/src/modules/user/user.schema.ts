@@ -15,6 +15,13 @@ export type GetGalleryByUsernameParamsType = Static<
   typeof GetGalleryByUsernameParams
 >;
 
+export const ChangeUserDescriptionParams = Type.Object({
+  description: Type.String(),
+});
+export type ChangeUserDescriptionParamsType = Static<
+  typeof ChangeUserDescriptionParams
+>;
+
 export const GetFavoritesByUsernameParams = Type.Object({
   username: Type.RegEx(USERNAME_REGEX),
 });

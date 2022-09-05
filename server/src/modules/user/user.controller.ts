@@ -1,7 +1,9 @@
 import type {FastifyRequest as Request, FastifyReply as Reply} from 'fastify';
-import {Controller, GET} from 'fastify-decorators';
+import {Controller, GET, POST, PUT} from 'fastify-decorators';
 import {hasBearerToken, IsAuthenticated} from '../../shared/hooks/auth';
 import {
+  ChangeUserDescriptionParams,
+  ChangeUserDescriptionParamsType,
   GetFavoritesByUsernameParams,
   GetFavoritesByUsernameParamsType,
   GetGalleryByUsernameParams,
@@ -78,5 +80,20 @@ export class UserController {
     reply: Reply,
   ) {
     return this.userService.getFavoritesByUsername(request.params);
+  }
+
+  @PUT('/:username/description', {
+    onRequest: [hasBearerToken, IsAuthenticated],
+    schema: {
+      body: ChangeUserDescriptionParams,
+    },
+  })
+  async changeUserDescription(
+    request: Request<{
+      Body: ChangeUserDescriptionParamsType;
+    }>,
+    reply: Reply,
+  ) {
+    return this.userService.changeUserDescription(request.userId, request.body);
   }
 }

@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Layout } from '../../components/templates/Layout';
 import { isValidUsername } from '../../utils/validation';
@@ -10,10 +10,11 @@ import { formatDate } from '../../utils/formarDate';
 import { normalizeDate } from '../../utils/normalizeDate';
 import { calcAgeFromDate } from '../../utils/calcAgeFromDate';
 import { PhotosTab } from '../../components/organisms/PhotosTab';
-import { GalleryTab } from '../../components/organisms/GalleryTab';
+// import { GalleryTab } from '../../components/organisms/GalleryTab';
 import { FavoritesTab } from '../../components/organisms/FavoritesTab';
 import clsx from 'clsx';
 import { TabIsLoading } from '../../components/atoms/TabIsLoading';
+import { useForm } from 'react-hook-form';
 
 export const User: FC = () => {
 	const [tab, setTab] = useState<'photos' | 'gallery' | 'favorites'>('photos');
@@ -24,6 +25,40 @@ export const User: FC = () => {
 	});
 	const myUsername = useUserStore((u) => u.username);
 	const ItsMe = data?.username === myUsername;
+	const [{ loading: editDescriptionLoading }, executeEditDescription] =
+		useAxios<{ description: string }, { description: string }>(
+			{ method: 'PUT', url: `/users/${username}/description` },
+			{ manual: true }
+		);
+	const { register, handleSubmit, setValue } = useForm<{ description: string }>(
+		{
+			defaultValues: {
+				description: data?.description,
+			},
+		}
+	);
+
+	const handleEditDescriptionSubmit = handleSubmit(({ description }) => {
+		executeEditDescription({
+			data: {
+				description,
+			},
+		})
+			.then((response) => {
+				setValue('description', response.data.description);
+			})
+			.catch((error) => {
+				console.log(error);
+			});
+	});
+
+	useEffect(() => {
+		if (!data) return;
+
+		if (!data.description) return;
+
+		setValue('description', data.description);
+	}, [data]);
 
 	if (loading) {
 		return (
@@ -77,9 +112,33 @@ export const User: FC = () => {
 									</h5>
 									<p>Dirección: {data.address}</p>
 									<br />
-									{data.description
-										? data.description
-										: `${data.name} (@${data.username}) no tiene una descripción.`}
+									{ItsMe ? (
+										<form onSubmit={handleEditDescriptionSubmit}>
+											<textarea
+												className="textarea"
+												placeholder={
+													data.description
+														? data.description
+														: `${data.name} (@${data.username}) no tiene una descripción.`
+												}
+												{...register('description', { required: true })}
+											/>
+											<br />
+											<button
+												type="submit"
+												className={clsx(
+													'button',
+													editDescriptionLoading && 'is-loading'
+												)}
+											>
+												Actualizar
+											</button>
+										</form>
+									) : data.description ? (
+										data.description
+									) : (
+										`${data.name} (@${data.username}) no tiene una descripción.`
+									)}
 								</div>
 							</div>
 							<div className="media-right"></div>
@@ -94,11 +153,11 @@ export const User: FC = () => {
 						<li className={clsx(tab === 'photos' && 'is-active')}>
 							<a onClick={() => setTab('photos')}>Fotos: {data.photosCount}</a>
 						</li>
-						<li className={clsx(tab === 'gallery' && 'is-active')}>
+						{/* <li className={clsx(tab === 'gallery' && 'is-active')}>
 							<a onClick={() => setTab('gallery')}>
 								Galerías: {data.galleryCount}
 							</a>
-						</li>
+						</li> */}
 						<li className={clsx(tab === 'favorites' && 'is-active')}>
 							<a onClick={() => setTab('favorites')}>
 								Favoritos: {data.favoritesCount}
@@ -111,9 +170,9 @@ export const User: FC = () => {
 
 				{tab === 'photos' ? (
 					<PhotosTab ItsMe={ItsMe} username={data.username} />
-				) : tab === 'gallery' ? (
-					<GalleryTab ItsMe={ItsMe} username={data.username} />
-				) : tab === 'favorites' ? (
+				) : // ) : tab === 'gallery' ? (
+				// <GalleryTab ItsMe={ItsMe} username={data.username} />
+				tab === 'favorites' ? (
 					<FavoritesTab username={data.username} />
 				) : (
 					<p>No hay contenido para mostrar.</p>

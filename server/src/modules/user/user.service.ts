@@ -3,6 +3,7 @@ import {DatabaseService} from '../../database/DatabaseService';
 import {Unauthorized, BadRequest, NotFound} from 'http-errors';
 import {trimStrings} from '../../utils/trimStrings';
 import {
+  ChangeUserDescriptionParamsType,
   CreateBodyType,
   GetFavoritesByUsernameParamsType,
   GetGalleryByUsernameParamsType,
@@ -131,6 +132,27 @@ export class UserService {
 
   async getById(id: string) {
     return this.databaseService.user.findUnique({where: {id}});
+  }
+
+  async changeUserDescription(
+    userId: string,
+    {description}: ChangeUserDescriptionParamsType,
+  ) {
+    const user = await this.getByIdOrThrow(userId);
+
+    await this.databaseService.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        description,
+      },
+    });
+
+    return {
+      success: true,
+      description,
+    };
   }
 
   async getByIdOrThrow(id: string) {
