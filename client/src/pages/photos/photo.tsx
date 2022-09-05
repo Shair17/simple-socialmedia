@@ -16,6 +16,8 @@ import clsx from 'clsx';
 import Rating from 'react-rating';
 import { StarEmpty } from '../../components/atoms/StarEmpty';
 import { StarFull } from '../../components/atoms/StarFull';
+import { HeartEmpty } from '../../components/atoms/HeartEmpty';
+import { HeartFull } from '../../components/atoms/HeartFull';
 
 const LeaveComment: FC<{
 	photoId: string;
@@ -128,6 +130,7 @@ const Comment: FC<IComment> = ({ comment, user, createdAt }) => {
 };
 
 export const Photo: FC = () => {
+	const [heartIsOn, setHeartIsOn] = useState<boolean>(false);
 	const [comments, setComments] = useState<IComment[]>([]);
 	const isAuthenticated = useIsAuthenticated();
 	const params = useParams();
@@ -149,12 +152,37 @@ export const Photo: FC = () => {
 			comments: IComment[];
 			user: { name: string; username: string };
 			ranking: number;
+			isInFavorites: boolean;
 		},
 		any
 	>(`/photos/${photoId}`);
+	const [_, executeAddPhotoToFavorites] = useAxios<
+		{ success: boolean; heartIsOn: boolean },
+		{ photoId: string }
+	>({ method: 'POST', url: `/photos/${photoId}/favorite` }, { manual: true });
 	const [photoRanking, setPhotoRanking] = useState<number>(
 		data?.ranking || createdRankingData?.newRanking || 0
 	);
+
+	const handleAddToFavorites = () => {
+		if (!isAuthenticated || !data) return;
+
+		executeAddPhotoToFavorites({
+			data: { photoId: data.id },
+		})
+			.then((response) => {
+				const { heartIsOn } = response.data;
+
+				if (heartIsOn) {
+					setHeartIsOn(true);
+					toast('Se agregó la foto a favoritos correctamente');
+				} else {
+					setHeartIsOn(false);
+					toast('Se quitó la foto de favoritos correctamente');
+				}
+			})
+			.catch((error) => console.log(error));
+	};
 
 	const handleRatingChange = (n: number) => {
 		executeCreateRanking({
@@ -213,7 +241,10 @@ export const Photo: FC = () => {
 									<div className="media-left">
 										<figure className="image is-48x48">
 											<img
-												src="https://bulma.io/images/placeholders/96x96.png"
+												className="is-rounded"
+												src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+													data.user.name
+												)}`}
 												alt="Placeholder image"
 											/>
 										</figure>
@@ -223,6 +254,24 @@ export const Photo: FC = () => {
 										<p className="subtitle is-6">@{data.user.username}</p>
 									</div>
 									<div className="media-right">
+										{isAuthenticated && (
+											<>
+												<div style={{ float: 'right', marginBottom: 15 }}>
+													<a
+														onClick={handleAddToFavorites}
+														style={{ color: 'inherit' }}
+													>
+														{data.isInFavorites || heartIsOn ? (
+															<HeartFull />
+														) : (
+															<HeartEmpty />
+														)}
+													</a>
+												</div>
+												<br />
+											</>
+										)}
+
 										{/** @ts-ignore */}
 										<Rating
 											key="dsalkdsakbdsajkdbasd"

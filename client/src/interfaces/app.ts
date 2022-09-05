@@ -37,6 +37,7 @@ export interface FavoritePhotos {
 	createdAt: string;
 	updatedAt: string;
 	userId: string;
+	photo: { id: string; url: string };
 }
 
 export interface RegisterType {

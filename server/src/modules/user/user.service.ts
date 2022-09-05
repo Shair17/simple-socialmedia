@@ -88,7 +88,16 @@ export class UserService {
     const user = await this.databaseService.user.findUnique({
       where: {username},
       include: {
-        favorites: true,
+        favorites: {
+          select: {
+            photo: {
+              select: {
+                url: true,
+                id: true,
+              },
+            },
+          },
+        },
       },
     });
 

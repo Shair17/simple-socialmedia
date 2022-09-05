@@ -2,7 +2,12 @@ import type {FastifyRequest as Request, FastifyReply as Reply} from 'fastify';
 import {Controller, POST, GET, DELETE} from 'fastify-decorators';
 import {hasBearerToken, IsAuthenticated} from '../../shared/hooks/auth';
 import {PhotoService} from './photo.service';
-import {GetRankingBody, GetRankingBodyType} from './photo.schema';
+import {
+  AddPhotoToFavoritesBody,
+  AddPhotoToFavoritesBodyType,
+  GetRankingBody,
+  GetRankingBodyType,
+} from './photo.schema';
 import {
   GetPhotoParams,
   GetPhotoParamsType,
@@ -27,7 +32,22 @@ export class PhotoController {
 
   @GET('/:id', {schema: {params: GetPhotoParams}})
   async getPhoto(request: Request<{Params: GetPhotoParamsType}>, reply: Reply) {
-    return this.photoService.getPhoto(request.params);
+    return this.photoService.getPhoto(request.userId, request.params);
+  }
+
+  @POST('/:id/favorite', {
+    onRequest: [hasBearerToken, IsAuthenticated],
+    schema: {
+      body: AddPhotoToFavoritesBody,
+    },
+  })
+  async addPhotoToFavorite(
+    request: Request<{
+      Body: AddPhotoToFavoritesBodyType;
+    }>,
+    reply: Reply,
+  ) {
+    return this.photoService.addPhotoToFavorite(request.userId, request.body);
   }
 
   @POST('/:id/comment', {

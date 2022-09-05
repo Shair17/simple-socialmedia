@@ -1,5 +1,12 @@
 import {Type, Static} from '@sinclair/typebox';
 
+export const AddPhotoToFavoritesBody = Type.Object({
+  photoId: Type.String({format: 'uuid'}),
+});
+export type AddPhotoToFavoritesBodyType = Static<
+  typeof AddPhotoToFavoritesBody
+>;
+
 export const GetRankingBody = Type.Object({
   photoId: Type.String({format: 'uuid'}),
 });

@@ -29,11 +29,11 @@ export const FavoritesTab: FC<Props> = ({ username }) => {
 
 	return (
 		<div className="columns is-multiline is-mobile">
-			{data.map((_, key) => (
-				<div className="column is-one-third" key={key}>
-					<Link key={key} to={`/photos/${key}`} style={{ color: 'inherit' }}>
+			{data.map(({ photo }) => (
+				<div className="column is-one-third" key={photo.id}>
+					<Link to={`/photos/${photo.id}`} style={{ color: 'inherit' }}>
 						<figure className="image is-square">
-							<img src="https://bulma.io/images/placeholders/256x256.png" />
+							<img src={photo.url} />
 						</figure>
 					</Link>
 				</div>

@@ -2,6 +2,7 @@ import {Service} from 'fastify-decorators';
 import {DatabaseService} from '../../database/DatabaseService';
 import {UserService} from '../user/user.service';
 import {
+  AddPhotoToFavoritesBodyType,
   CreateRatingBodyType,
   DeletePhotoParamsType,
   GetPhotoParamsType,
@@ -67,7 +68,7 @@ export class PhotoService {
     return this.databaseService.photo.findUnique({where: {id}});
   }
 
-  async getPhotoByIdOrThrow(id: string) {
+  async getPhotoByIdOrThrow(id: string, userId?: string) {
     const photo = await this.databaseService.photo.findUnique({
       where: {id},
       include: {
@@ -80,6 +81,7 @@ export class PhotoService {
         },
       },
     });
+    let isInFavorites = false;
 
     if (!photo) {
       throw new NotFound();
@@ -97,19 +99,75 @@ export class PhotoService {
       }),
     );
 
+    const favoriteExists = await this.databaseService.favoritePhotos.findFirst({
+      where: {user: {id: userId}, photo: {id: photo.id}},
+    });
+
+    if (favoriteExists) {
+      isInFavorites = true;
+    } else {
+      isInFavorites = false;
+    }
+
     const response = {
       ...restOfPhoto,
       comments,
       user: {name: user?.name, username: user?.username},
       rankings,
       ranking: this.calcPhotoRanking(rankings),
+      isInFavorites,
     };
 
     return response;
   }
 
-  async getPhoto({id}: GetPhotoParamsType) {
-    return this.getPhotoByIdOrThrow(id);
+  async addPhotoToFavorite(
+    userId: string,
+    {photoId}: AddPhotoToFavoritesBodyType,
+  ) {
+    const [user, photo] = await Promise.all([
+      this.userService.getByIdOrThrow(userId),
+      this.getPhotoByIdOrThrow(photoId),
+    ]);
+    let heartIsOn = false;
+
+    const favoriteExists = await this.databaseService.favoritePhotos.findFirst({
+      where: {user: {id: userId}, photo: {id: photo.id}},
+    });
+
+    if (favoriteExists) {
+      await this.databaseService.favoritePhotos.delete({
+        where: {
+          id: favoriteExists.id,
+        },
+      });
+      heartIsOn = false;
+    } else {
+      await this.databaseService.favoritePhotos.create({
+        data: {
+          user: {
+            connect: {
+              id: user.id,
+            },
+          },
+          photo: {
+            connect: {
+              id: photo.id,
+            },
+          },
+        },
+      });
+      heartIsOn = true;
+    }
+
+    return {
+      success: true,
+      heartIsOn,
+    };
+  }
+
+  async getPhoto(userId: string, {id}: GetPhotoParamsType) {
+    return this.getPhotoByIdOrThrow(id, userId);
   }
 
   // TODO: aplicar paginacion
@@ -233,7 +291,7 @@ export class PhotoService {
   }
 
   async getRanking(userId: string, {photoId}: GetRankingBodyType) {
-    const user = await this.userService.getByIdOrThrow(userId);
+    await this.userService.getByIdOrThrow(userId);
     const photo = await this.getPhotoByIdOrThrow(photoId);
 
     const ranking = this.calcPhotoRanking(photo.rankings);
