@@ -13,6 +13,9 @@ import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { getErrorMessage } from '../../utils/getErrorMessage';
 import clsx from 'clsx';
+import Rating from 'react-rating';
+import { StarEmpty } from '../../components/atoms/StarEmpty';
+import { StarFull } from '../../components/atoms/StarFull';
 
 const LeaveComment: FC<{
 	photoId: string;
@@ -129,13 +132,50 @@ export const Photo: FC = () => {
 	const isAuthenticated = useIsAuthenticated();
 	const params = useParams();
 	const photoId = params.id;
+	const [{ data: createdRankingData }, executeCreateRanking] = useAxios<
+		{ newRanking: number },
+		{ photoId: string; rating: number }
+	>(
+		{
+			method: 'POST',
+			url: `/photos/${photoId}/rating`,
+		},
+		{
+			manual: true,
+		}
+	);
 	const [{ error, loading, data }] = useAxios<
 		IPhoto & {
 			comments: IComment[];
 			user: { name: string; username: string };
+			ranking: number;
 		},
 		any
 	>(`/photos/${photoId}`);
+	const [photoRanking, setPhotoRanking] = useState<number>(
+		data?.ranking || createdRankingData?.newRanking || 0
+	);
+
+	const handleRatingChange = (n: number) => {
+		executeCreateRanking({
+			data: {
+				photoId: photoId!,
+				rating: n,
+			},
+		})
+			.then((response) => {
+				setPhotoRanking(response.data.newRanking);
+			})
+			.catch((error) => {
+				console.log('error');
+			});
+	};
+
+	useEffect(() => {
+		if (!createdRankingData) return;
+
+		setPhotoRanking(createdRankingData.newRanking);
+	}, [createdRankingData]);
 
 	useEffect(() => {
 		if (!data) return;
@@ -181,6 +221,19 @@ export const Photo: FC = () => {
 									<div className="media-content">
 										<p className="title is-4">{data.user.name}</p>
 										<p className="subtitle is-6">@{data.user.username}</p>
+									</div>
+									<div className="media-right">
+										{/** @ts-ignore */}
+										<Rating
+											key="dsalkdsakbdsajkdbasd"
+											emptySymbol={<StarEmpty />}
+											fullSymbol={<StarFull />}
+											onChange={handleRatingChange}
+											quiet
+											initialRating={data.ranking || photoRanking}
+											start={0}
+											stop={5}
+										/>
 									</div>
 								</div>
 

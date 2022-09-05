@@ -2,6 +2,7 @@ import {Controller, POST, GET, DELETE} from 'fastify-decorators';
 import {hasBearerToken, IsAuthenticated} from '../../shared/hooks/auth';
 import {Reply, Request} from '../../interfaces/http';
 import {PhotoService} from './photo.service';
+import {GetRankingBody, GetRankingBodyType} from './photo.schema';
 import {
   GetPhotoParams,
   GetPhotoParamsType,
@@ -11,8 +12,9 @@ import {
   DeletePhotoParamsType,
   UploadImageBody,
   UploadImageBodyType,
+  CreateRatingBody,
+  CreateRatingBodyType,
 } from './photo.schema';
-
 @Controller('/photos')
 export class PhotoController {
   constructor(private readonly photoService: PhotoService) {}
@@ -39,6 +41,29 @@ export class PhotoController {
     reply: Reply,
   ) {
     return this.photoService.createComment(request.userId, request.body);
+  }
+
+  @POST('/:id/rating', {
+    onRequest: [hasBearerToken, IsAuthenticated],
+    schema: {
+      body: CreateRatingBody,
+    },
+  })
+  async createRating(
+    request: Request<{Body: CreateRatingBodyType}>,
+    reply: Reply,
+  ) {
+    return this.photoService.createRating(request.userId, request.body);
+  }
+
+  @GET('/:id/rating', {
+    onRequest: [hasBearerToken, IsAuthenticated],
+    schema: {
+      body: GetRankingBody,
+    },
+  })
+  async getRanking(request: Request<{Body: GetRankingBodyType}>, reply: Reply) {
+    return this.photoService.getRanking(request.userId, request.body);
   }
 
   @POST('/upload', {

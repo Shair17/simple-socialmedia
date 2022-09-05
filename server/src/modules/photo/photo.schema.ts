@@ -1,5 +1,16 @@
 import {Type, Static} from '@sinclair/typebox';
 
+export const GetRankingBody = Type.Object({
+  photoId: Type.String({format: 'uuid'}),
+});
+export type GetRankingBodyType = Static<typeof GetRankingBody>;
+
+export const CreateRatingBody = Type.Object({
+  photoId: Type.String({format: 'uuid'}),
+  rating: Type.Number({minimum: 1, maximum: 5}),
+});
+export type CreateRatingBodyType = Static<typeof CreateRatingBody>;
+
 export const CreateCommentBody = Type.Object({
   photoId: Type.String({format: 'uuid'}),
   comment: Type.String(),

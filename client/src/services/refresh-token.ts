@@ -3,7 +3,6 @@ import { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { useAuthStore, ITokens } from '../stores/useAuthStore';
 import { isValidToken } from '../utils/isValidToken';
 
-// a little time before expiration to try refresh (seconds)
 const EXPIRE_FUDGE = 10;
 
 type Token = string;

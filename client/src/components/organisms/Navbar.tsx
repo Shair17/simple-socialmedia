@@ -68,14 +68,14 @@ export const Navbar: FC = () => {
 					>
 						Fotos
 					</NavLink>
-					<NavLink
+					{/* <NavLink
 						to="/gallery"
 						className={({ isActive }) =>
 							clsx('navbar-item', isActive && 'is-active')
 						}
 					>
 						Galerías
-					</NavLink>
+					</NavLink> */}
 				</div>
 
 				<div className="navbar-end">
@@ -101,9 +101,9 @@ export const Navbar: FC = () => {
 								<Link to="/upload" className="navbar-item">
 									Subir Foto
 								</Link>
-								<Link to="/new" className="navbar-item">
+								{/* <Link to="/new" className="navbar-item">
 									Crear Galería
-								</Link>
+								</Link> */}
 								<hr className="navbar-divider" />
 								<a className="navbar-item" onClick={logOut}>
 									Cerrar Sesión

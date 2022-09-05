@@ -116,6 +116,15 @@ export interface GetPhotosFeed {
 	};
 }
 
+export interface PhotoRanking {
+	id: string;
+	value: number;
+	createdAt: string;
+	updatedAt: string;
+	photoId: string;
+	userId: string;
+}
+
 export interface Comment {
 	id: string;
 	comment: string;

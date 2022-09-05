@@ -2,8 +2,10 @@ import {Service} from 'fastify-decorators';
 import {DatabaseService} from '../../database/DatabaseService';
 import {UserService} from '../user/user.service';
 import {
+  CreateRatingBodyType,
   DeletePhotoParamsType,
   GetPhotoParamsType,
+  GetRankingBodyType,
   UploadImageBodyType,
 } from './photo.schema';
 import {NotFound, Unauthorized, InternalServerError} from 'http-errors';
@@ -69,6 +71,7 @@ export class PhotoService {
     const photo = await this.databaseService.photo.findUnique({
       where: {id},
       include: {
+        rankings: true,
         user: true,
         comments: {
           include: {
@@ -82,7 +85,7 @@ export class PhotoService {
       throw new NotFound();
     }
 
-    const {comments: _comments, user, ...restOfPhoto} = photo;
+    const {comments: _comments, user, rankings, ...restOfPhoto} = photo;
 
     const comments = _comments.map(
       ({user: {name, username}, ...restOfComment}) => ({
@@ -98,6 +101,8 @@ export class PhotoService {
       ...restOfPhoto,
       comments,
       user: {name: user?.name, username: user?.username},
+      rankings,
+      ranking: this.calcPhotoRanking(rankings),
     };
 
     return response;
@@ -186,6 +191,54 @@ export class PhotoService {
     return {
       success: true,
     };
+  }
+
+  async createRating(userId: string, {photoId, rating}: CreateRatingBodyType) {
+    const user = await this.userService.getByIdOrThrow(userId);
+    const photo = await this.getPhotoByIdOrThrow(photoId);
+
+    await this.databaseService.photoRanking.create({
+      data: {
+        value: rating,
+        photo: {
+          connect: {
+            id: photo.id,
+          },
+        },
+        user: {
+          connect: {
+            id: user.id,
+          },
+        },
+      },
+    });
+
+    const updatedPhoto = await this.databaseService.photo.findUnique({
+      where: {id: photo.id},
+      include: {
+        rankings: true,
+      },
+    });
+
+    if (!updatedPhoto) {
+      throw new NotFound();
+    }
+
+    const updatedRanking = this.calcPhotoRanking(updatedPhoto.rankings);
+
+    return {
+      success: true,
+      newRanking: updatedRanking,
+    };
+  }
+
+  async getRanking(userId: string, {photoId}: GetRankingBodyType) {
+    const user = await this.userService.getByIdOrThrow(userId);
+    const photo = await this.getPhotoByIdOrThrow(photoId);
+
+    const ranking = this.calcPhotoRanking(photo.rankings);
+
+    return ranking;
   }
 
   calcPhotoRanking(rankings: PhotoRanking[]) {
