@@ -1,6 +1,6 @@
+import type {FastifyRequest as Request, FastifyReply as Reply} from 'fastify';
 import {Controller, POST} from 'fastify-decorators';
 import {AuthService} from './auth.service';
-import {Request, Reply} from '../../interfaces/http';
 import {hasBearerToken, IsAuthenticated} from '../../shared/hooks/auth';
 import {
   Login,

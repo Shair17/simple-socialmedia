@@ -1,5 +1,5 @@
+import type {FastifyRequest as Request, FastifyReply as Reply} from 'fastify';
 import {Controller, GET} from 'fastify-decorators';
-import {Reply, Request} from '../../interfaces/http';
 import {hasBearerToken, IsAuthenticated} from '../../shared/hooks/auth';
 import {
   GetFavoritesByUsernameParams,

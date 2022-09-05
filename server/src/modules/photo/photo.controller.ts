@@ -1,6 +1,6 @@
+import type {FastifyRequest as Request, FastifyReply as Reply} from 'fastify';
 import {Controller, POST, GET, DELETE} from 'fastify-decorators';
 import {hasBearerToken, IsAuthenticated} from '../../shared/hooks/auth';
-import {Reply, Request} from '../../interfaces/http';
 import {PhotoService} from './photo.service';
 import {GetRankingBody, GetRankingBodyType} from './photo.schema';
 import {

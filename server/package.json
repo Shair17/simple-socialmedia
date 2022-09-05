@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "start": "yarn build && node scripts/clear && node dist/main",
+    "start": "node dist",
     "dev": "node scripts/clear && nodemon | pino-pretty -c",
     "env:dev": "cross-env NODE_ENV=development",
     "build": "yarn clean && tsc",
