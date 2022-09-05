@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useIsAuthenticated } from '../../hooks/useIsAuthenticated';
 import clsx from 'clsx';
@@ -6,6 +6,7 @@ import { useUserStore } from '../../stores/useUserStore';
 import { useAuthStore } from '../../stores/useAuthStore';
 
 export const Navbar: FC = () => {
+	const [navbarOpen, setNavbarOpen] = useState<boolean>(false);
 	const isAuthenticated = useIsAuthenticated();
 	const name = useUserStore((s) => s.name);
 	const username = useUserStore((s) => s.username);
@@ -39,7 +40,8 @@ export const Navbar: FC = () => {
 
 				<a
 					role="button"
-					className="navbar-burger"
+					className={clsx('navbar-burger', navbarOpen && 'is-active')}
+					onClick={() => setNavbarOpen(!navbarOpen)}
 					aria-label="menu"
 					aria-expanded="false"
 					data-target="navbarBasicExample"
@@ -50,7 +52,10 @@ export const Navbar: FC = () => {
 				</a>
 			</div>
 
-			<div id="navbarBasicExample" className="navbar-menu">
+			<div
+				id="navbarBasicExample"
+				className={clsx('navbar-menu', navbarOpen && 'is-active')}
+			>
 				<div className="navbar-start">
 					<NavLink
 						to="/users"
