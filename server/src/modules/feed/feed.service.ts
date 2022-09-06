@@ -1,5 +1,4 @@
 import {Service} from 'fastify-decorators';
-import {UserService} from '../user';
 import {DatabaseService} from '../../database/DatabaseService';
 import {PhotoService} from '../photo/photo.service';
 import {GetPhotosQueryStringType, GetUsersQueryStringType} from './feed.schema';
@@ -8,7 +7,6 @@ import {GetPhotosQueryStringType, GetUsersQueryStringType} from './feed.schema';
 export class FeedService {
   constructor(
     private readonly databaseService: DatabaseService,
-    private readonly userService: UserService,
     private readonly photoService: PhotoService,
   ) {}
 
@@ -21,7 +19,10 @@ export class FeedService {
       take: Number(take) || undefined,
       skip: Number(skip) || undefined,
       orderBy: {
-        createdAt: orderBy,
+        rankings: {
+          _count: 'desc',
+        },
+        // createdAt: orderBy,
       },
       select: {
         id: true,
