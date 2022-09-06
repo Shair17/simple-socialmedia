@@ -19,10 +19,10 @@ export class FeedService {
       take: Number(take) || undefined,
       skip: Number(skip) || undefined,
       orderBy: {
-        rankings: {
-          _count: 'desc',
-        },
-        // createdAt: orderBy,
+        // rankings: {
+        //   _count: 'desc',
+        // },
+        createdAt: orderBy,
       },
       select: {
         id: true,
@@ -42,10 +42,21 @@ export class FeedService {
       },
     });
 
-    return photos.map(({rankings, ...rest}) => ({
+    const _photos = photos.map(({rankings, ...rest}) => ({
       ...rest,
       ranking: this.photoService.calcPhotoRanking(rankings),
     }));
+
+    return _photos.sort((a, b) => {
+      if (a.ranking > b.ranking) {
+        return -1;
+      }
+      if (a.ranking < b.ranking) {
+        return 1;
+      }
+
+      return 0;
+    });
   }
 
   async getUsersFeed({take}: GetUsersQueryStringType) {
