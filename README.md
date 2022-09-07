@@ -29,6 +29,18 @@ Una vez dentro del servidor ejecutar el siguiente comando para instalar las depe
 npm install
 ```
 
+## Configuración de variables de entorno
+
+Para poder ejecutar todo correctamente se deben configurar ciertas variables de entorno, las cuales son necesarias para el correcto funcionamiento de toda la aplicación.
+
+### Cliente
+
+Para el cliente modificar el archivo `api.ts` dentro de la carpeta `/client/src/constants`. Modificar el puerto de la constante `BASE_URL`, si no se ha modificado el puerto en el servidor, entonces dejarlo tal y como está.
+
+### Servidor
+
+Dentro de la carpeta `/server` se encuentra un archivo `.env.example` el cual se debe renombrar a `.env` y seguir las instrucciones que están en los comentarios del mismo archivo.
+
 ## Ejecución en Modo Desarrollo
 
 Una vez dentro del cliente ejecutar el siguiente comando para ejecutar el cliente
