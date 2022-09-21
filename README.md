@@ -43,6 +43,8 @@ Dentro de la carpeta `/server` se encuentra un archivo `.env.example` el cual se
 
 ## Ejecución en Modo Desarrollo
 
+### Cliente
+
 Una vez dentro del cliente ejecutar el siguiente comando para ejecutar el cliente
 
 ```sh
