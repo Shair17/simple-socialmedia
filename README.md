@@ -6,6 +6,10 @@ Este es el proyecto final de estrategías algoritmicas, consta de un cliente y u
 
 https://socialmediademo.vercel.app/
 
+## Preview Demo
+
+![screenshot](https://raw.githubusercontent.com/Shair17/simple-socialmedia/main/screenshot.png)
+
 ## Requisitos
 
 Para poder ejecutar el proyecto son necesarios los siguientes programas:
