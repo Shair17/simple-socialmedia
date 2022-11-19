@@ -15,7 +15,7 @@ https://socialmediademo.vercel.app/
 Para poder ejecutar el proyecto son necesarios los siguientes programas:
 
 - **NodeJS - [nodejs](https://nodejs.org/en/)** (_entorno de ejecución de Javascript_)
-- **MySQL - [mysql](https://dev.mysql.com/downloads/)** (_Base de Datos_)
+- **PostgreSQL - [postgresql](https://www.postgresql.org/download/)** (_Base de Datos_)
 
 ## Instalación
 
