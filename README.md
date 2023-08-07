@@ -1,4 +1,4 @@
-# Projecto de Estrategías Algoritmicas
+# Projecto Phosial
 
 Este es el proyecto final de estrategías algoritmicas, consta de un cliente y un servidor
 
